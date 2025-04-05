@@ -5,6 +5,9 @@ import schedule
 import threading
 import time
 from config import *
+from logic import create_collage
+import cv2
+import os 
 
 bot = TeleBot(API_TOKEN)
 
@@ -77,6 +80,27 @@ def callback_query(call):
             bot.send_message(user_id, 'Ты уже получил картинку!')
     else:
         bot.send_message(user_id, "К сожалению, ты не успел получить картинку! Попробуй в следующий раз!)")
+
+@bot.message_handler(commands=['get_my_score'])
+def get_my_score(message):
+    user_id = message.chat.id
+    info = manager.get_winners_img(user_id)
+    prizes = [x[0] for x in info]
+
+    image_paths = os.listdir('img')
+    image_paths = [f'img/{x}' if x in prizes else f'hidden_img/{x}' for x in image_paths]
+
+    collage = create_collage(image_paths)
+    
+    # Создаём папку, если нет
+    if not os.path.exists('collages'):
+        os.makedirs('collages')
+    
+    path_to_collage = f'collages/{user_id}_collage.jpg'
+    cv2.imwrite(path_to_collage, collage)
+
+    with open(path_to_collage, 'rb') as photo:
+        bot.send_photo(user_id, photo, caption="Вот твой коллаж с полученными призами!")
 
 def polling_thread():
     bot.polling(none_stop=True)
