@@ -1,0 +1,27 @@
+-- database: ./movie.db
+
+SELECT d.name, MAX(m.release_date) AS last_release
+FROM directors d
+JOIN movies m ON d.id = m.director_id
+GROUP BY d.name;
+
+SELECT d.name, SUM(m.budget) AS total_budget
+FROM directors d
+JOIN movies m ON d.id = m.director_id
+GROUP BY d.name;
+
+SELECT d.name, COUNT(m.id) AS movie_count
+FROM directors d
+JOIN movies m ON d.id = m.director_id
+GROUP BY d.name;
+
+SELECT m.title, COUNT(mg.genre_id) AS genre_count
+FROM movies m
+JOIN movies_genres mg ON m.id = mg.movie_id
+GROUP BY m.title;
+
+SELECT d.name, COUNT(DISTINCT mg.genre_id) AS genre_count
+FROM directors d
+JOIN movies m ON d.id = m.director_id
+JOIN movies_genres mg ON m.id = mg.movie_id
+GROUP BY d.name;

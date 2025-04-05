@@ -129,6 +129,29 @@ class DatabaseManager:
                 INNER JOIN prizes ON winners.prize_id = prizes.prize_id
                 WHERE user_id = ?''', (user_id, ))
             return cur.fetchall()
+    
+    def get_user_level(self, user_id):
+        conn = sqlite3.connect(self.database)
+        with conn:
+            cur = conn.cursor()
+            cur.execute('''
+                SELECT COUNT(winners.prize_id)
+                FROM winners
+                WHERE winners.user_id = ?
+            ''', (user_id,))
+            count = cur.fetchone()[0]
+            if count >= 15:
+                return "Мастер"
+            elif count >= 10:
+                return "Продвинутый"
+            elif count >= 5:
+                return "Новичок"
+            else:
+                return "Начинающий"
+
+    def get_user_achievements(self, user_id):
+        level = self.get_user_level(user_id)
+        return level
 
 
 
